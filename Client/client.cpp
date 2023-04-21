@@ -18,6 +18,10 @@ int main(int argc, char* argv[]) {
 	// Struct containing WS (Windows Socket) data?
 	WSADATA wsaData;
 
+	int recvBufLen = DEFAULT_BUFLEN;						// Max bytes that can be received in a message from server
+	const char* sendBuf = "Msg sent from client";			// Message to send to server
+	char recvBuf[DEFAULT_BUFLEN];							// char array to store message from server
+
 	// Integer to hold function return values (to be checked for errors)
 	int iResult;
 
@@ -83,4 +87,27 @@ int main(int argc, char* argv[]) {
 		return 1;
 	}
 
+	// Send sendBuf to ConnectSocket which is connected to ptr->ai_addr
+	iResult = send(ConnectSocket, sendBuf, (int)strlen(sendBuf), 0);
+
+	if (iResult == SOCKET_ERROR) {
+		printf("send failed: %d\n", WSAGetLastError());
+		closesocket(ConnectSocket);
+		WSACleanup();
+		return 1;
+	}
+
+	// Number of bytes sent to server
+	printf("Bytes sent: %ld\n", iResult);
+
+	// Done sending messages
+	// Shutdown send-side
+	iResult = shutdown(ConnectSocket, SD_SEND);
+
+	if (iResult == SOCKET_ERROR) {
+		printf("shutdown() failed: %d\n", WSAGetLastError());
+		closesocket(ConnectSocket);
+		WSACleanup();
+		return 1;
+	}
 }
