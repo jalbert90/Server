@@ -57,12 +57,28 @@ int main(int argc, char* argv[]) {
 	// Connect to first IP returned by getaddrinfo() that matches desired attributes
 	ptr = result;
 
-	// Create a socket for connecting to server
+	// Create a socket for connecting to server and assign to SOCKET object
 	ConnectSocket = socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol);
 
 	if (ConnectSocket == INVALID_SOCKET) {
 		printf("Failed at socket(): %ld\n", WSAGetLastError());
 		freeaddrinfo(result);
+		WSACleanup();
+		return 1;
+	}
+
+	iResult = connect(ConnectSocket, ptr->ai_addr, (int)ptr->ai_addrlen);
+
+	if (iResult == SOCKET_ERROR) {
+		printf("connect() failed: %d\n", iResult);
+		closesocket(ConnectSocket);
+		ConnectSocket = INVALID_SOCKET;
+	}
+
+	freeaddrinfo(result);
+
+	if (ConnectSocket == INVALID_SOCKET) {
+		printf("Unable to connect\n");
 		WSACleanup();
 		return 1;
 	}
