@@ -101,7 +101,7 @@ int main(int argc, char* argv[]) {
 	printf("Bytes sent: %ld\n", iResult);
 
 	// Done sending messages
-	// Shutdown send-side
+	// Shutdown send-side (disable send operations)
 	iResult = shutdown(ConnectSocket, SD_SEND);
 
 	if (iResult == SOCKET_ERROR) {
@@ -110,4 +110,29 @@ int main(int argc, char* argv[]) {
 		WSACleanup();
 		return 1;
 	}
+
+	// Receive messages until server closes the connection
+	do {
+		// Receive message from server and store in recvBuf
+		iResult = recv(ConnectSocket, recvBuf, recvBufLen, 0);
+
+		if (iResult > 0) {
+			// If bytes received > 0, do this
+			printf("Bytes received: %d\n", iResult);
+			printf("Message received: %s\n", recvBuf);
+		}
+		else if (iResult == 0) {
+			// If bytes received == 0, do this
+			printf("Connection closed by server\n");
+		}
+		else {
+			// Error case
+			printf("Error at recv(): %d\n", WSAGetLastError());
+		}
+	} while (iResult > 0);
+
+	// Disconnect receive side
+	closesocket(ConnectSocket);
+	WSACleanup();
+	return 0;
 }
