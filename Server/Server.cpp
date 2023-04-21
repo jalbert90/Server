@@ -50,5 +50,17 @@ int main() {
 		return 1;
 	}
 
+	// Create a SOCKET object to hold a socket
+	SOCKET ListenSocket = INVALID_SOCKET;			// Socket will bind to address of machine and listen?
 
+	// Create a socket and assign to SOCKET object
+	ListenSocket = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
+
+	// ???
+	if (ListenSocket == SOCKET_ERROR) {
+		printf("socket() failed: %d\n", WSAGetLastError());
+		freeaddrinfo(result);
+		WSACleanup();
+		return 1;
+	}
 }
