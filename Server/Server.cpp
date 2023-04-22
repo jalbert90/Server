@@ -89,5 +89,16 @@ int main() {
 		WSACleanup();
 	}
 
-	// Receive message from client
+	// Create a socket to handle client connection
+	SOCKET ClientSocket = INVALID_SOCKET;
+
+	// Accept connection from ListenSocket (creates new socket), assign to ClientSocket for handling. (Pass connection to new socket so ListenSocket can continue to listen?)
+	ClientSocket = accept(ListenSocket, NULL, NULL);
+
+	if (ClientSocket == INVALID_SOCKET) {
+		printf("accept() failed: %ld\n", WSAGetLastError());
+		closesocket(ClientSocket);
+		WSACleanup();
+		return 1;
+	}
 }
