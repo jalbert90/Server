@@ -59,7 +59,7 @@ int main(int argc, char* argv[]) {
 	SOCKET ConnectSocket = INVALID_SOCKET;
 
 	// Attempt to connect to address until it works
-	for (ptr = result, ptr != NULL, ptr = ptr->ai_next) {
+	for (ptr = result; ptr != NULL; ptr = ptr->ai_next) {
 		// Create a socket for connecting to server and assign to SOCKET object
 		ConnectSocket = socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol);
 
