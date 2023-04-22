@@ -134,4 +134,20 @@ int main() {
 			WSACleanup();
 		}
 	} while (iResult > 0);
+
+	// Disconnect...
+	// ...send-side
+	iResult = shutdown(ClientSocket, SD_SEND);
+
+	if (iResult == SOCKET_ERROR) {
+		printf("Send operations shutdown() failed: %ld\n", WSAGetLastError());
+		closesocket(ClientSocket);
+		WSACleanup();
+		return 1;
+	}
+
+	// ...receive-side
+	closesocket(ClientSocket);
+	WSACleanup();
+	return 0;
 }
