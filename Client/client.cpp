@@ -58,25 +58,28 @@ int main(int argc, char* argv[]) {
 	// Create a SOCKET object used to connect to server
 	SOCKET ConnectSocket = INVALID_SOCKET;
 
-	// Connect to first IP returned by getaddrinfo() that matches desired attributes
-	ptr = result;
+	// Attempt to connect to address until it works
+	for (ptr = result, ptr != NULL, ptr = ptr->ai_next) {
+		// Create a socket for connecting to server and assign to SOCKET object
+		ConnectSocket = socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol);
 
-	// Create a socket for connecting to server and assign to SOCKET object
-	ConnectSocket = socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol);
+		if (ConnectSocket == INVALID_SOCKET) {
+			printf("Failed at socket(): %ld\n", WSAGetLastError());
+			freeaddrinfo(result);
+			WSACleanup();
+			return 1;
+		}
 
-	if (ConnectSocket == INVALID_SOCKET) {
-		printf("Failed at socket(): %ld\n", WSAGetLastError());
-		freeaddrinfo(result);
-		WSACleanup();
-		return 1;
-	}
+		iResult = connect(ConnectSocket, ptr->ai_addr, (int)ptr->ai_addrlen);
 
-	iResult = connect(ConnectSocket, ptr->ai_addr, (int)ptr->ai_addrlen);
+		if (iResult == SOCKET_ERROR) {
+			printf("connect() failed: %d\n", iResult);
+			closesocket(ConnectSocket);
+			ConnectSocket = INVALID_SOCKET;
+			continue;
+		}
 
-	if (iResult == SOCKET_ERROR) {
-		printf("connect() failed: %d\n", iResult);
-		closesocket(ConnectSocket);
-		ConnectSocket = INVALID_SOCKET;
+		break;
 	}
 
 	freeaddrinfo(result);
