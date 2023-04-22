@@ -19,7 +19,7 @@ int main(int argc, char* argv[]) {
 	WSADATA wsaData;
 
 	int recvBufLen = DEFAULT_BUFLEN;						// Max bytes that can be received in a message from server
-	const char* sendBuf = "Msg sent from client";			// Message to send to server
+	const char* sendBuf = "Test";							// Message to send to server
 	char recvBuf[DEFAULT_BUFLEN];							// char array to store message from server
 
 	// Integer to hold function return values (to be checked for errors)
@@ -91,7 +91,7 @@ int main(int argc, char* argv[]) {
 	}
 
 	// Send sendBuf to ConnectSocket which is connected to ptr->ai_addr
-	iResult = send(ConnectSocket, sendBuf, (int)strlen(sendBuf), 0);
+	iResult = send(ConnectSocket, sendBuf, (int)strlen(sendBuf) + 1, 0);	// Must send an extra byte so that null terminator (\0) is sent
 
 	if (iResult == SOCKET_ERROR) {
 		printf("send failed: %d\n", WSAGetLastError());
@@ -101,7 +101,9 @@ int main(int argc, char* argv[]) {
 	}
 
 	// Number of bytes sent to server
+	printf("strlen bytes sent: %d\n", (int)strlen(sendBuf));
 	printf("Bytes sent: %ld\n", iResult);
+	printf("Message sent: %s\n", sendBuf);
 
 	// Done sending messages
 	// Shutdown send-side (disable send operations)
@@ -121,6 +123,7 @@ int main(int argc, char* argv[]) {
 
 		if (iResult > 0) {
 			// If bytes received > 0, do this
+			printf("strlen bytes received: %d\n", (int)strlen(recvBuf));
 			printf("Bytes received: %d\n", iResult);
 			printf("Message received: %s\n", recvBuf);
 		}

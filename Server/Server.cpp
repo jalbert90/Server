@@ -114,7 +114,7 @@ int main() {
 			printf("Message received: %s\n", recvBuf);
 
 			// Echo message back to client
-			iSendResult = send(ClientSocket, recvBuf, (int)strlen(recvBuf), 0);
+			iSendResult = send(ClientSocket, recvBuf, iResult, 0);
 			
 			if (iSendResult == SOCKET_ERROR) {
 				printf("send() failed: %ld\n", WSAGetLastError());
