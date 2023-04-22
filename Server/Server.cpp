@@ -22,6 +22,9 @@ int main() {
 	// Integer to store results from function calls (to be checked for errors)
 	int iResult;
 
+	// Integer to store result from send function call (to be checked for errors)
+	int iSendResult;
+
 	// Initialize WS DLL
 	iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
 
@@ -101,4 +104,34 @@ int main() {
 		WSACleanup();
 		return 1;
 	}
+
+	// Receive message from client
+	do {
+		iResult = recv(ClientSocket, recvBuf, recvBufLen, 0);
+
+		if (iResult > 0) {
+			printf("Bytes received: %ld\n", iResult);
+			printf("Message received: %s\n", recvBuf);
+
+			// Echo message back to client
+			iSendResult = send(ClientSocket, recvBuf, (int)strlen(recvBuf), 0);
+			
+			if (iSendResult == SOCKET_ERROR) {
+				printf("send() failed: %ld\n", WSAGetLastError());
+				closesocket(ClientSocket);
+				WSACleanup();
+				return 1;
+			}
+
+			printf("Bytes sent: %ld\n", iSendResult);
+		}
+		else if (iResult == 0) {
+			printf("Connection closing...\n");
+		}
+		else {
+			printf("Error at recv(): %ld\n", WSAGetLastError());
+			closesocket(ClientSocket);
+			WSACleanup();
+		}
+	} while (iResult > 0);
 }
