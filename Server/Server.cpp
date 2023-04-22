@@ -16,6 +16,9 @@ int main() {
 	// Struct, info about WS (Windows Sockets) implementation
 	WSADATA wsaData;
 
+	int recvBufLen = DEFAULT_BUFLEN;			// Max number of bytes per message?
+	char recvBuf[DEFAULT_BUFLEN];				// char array to store message from client
+
 	// Integer to store results from function calls (to be checked for errors)
 	int iResult;
 
@@ -56,11 +59,35 @@ int main() {
 	// Create a socket and assign to SOCKET object
 	ListenSocket = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
 
-	// ???
 	if (ListenSocket == SOCKET_ERROR) {
-		printf("socket() failed: %d\n", WSAGetLastError());
+		printf("socket() failed: %ld\n", WSAGetLastError());
 		freeaddrinfo(result);
 		WSACleanup();
 		return 1;
 	}
+
+	// Bind newly created socket to IP address of this machine
+	iResult = bind(ListenSocket, result->ai_addr, (int)result->ai_addrlen);
+
+	if (iResult == SOCKET_ERROR) {
+		printf("bind() failed: %ld\n", WSAGetLastError());
+		freeaddrinfo(result);
+		closesocket(ListenSocket);
+		WSACleanup();
+		return 1;
+	}
+
+	// Done with addrinfo result--free the memory?
+	freeaddrinfo(result);
+
+	// Listen for incoming connections on socket bound to IP and port
+	iResult = listen(ListenSocket, SOMAXCONN);
+
+	if (iResult == SOCKET_ERROR) {
+		printf("listen() failed: %ld\n", WSAGetLastError());
+		closesocket(ListenSocket);
+		WSACleanup();
+	}
+
+	// Receive message from client
 }
